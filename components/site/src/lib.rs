@@ -567,11 +567,15 @@ impl Site {
     /// Inject live reload script tag if in live reload mode
     fn inject_livereload(&self, mut html: String) -> String {
         if let Some(port) = self.live_reload {
-            let codespace_name = std::env::var("CODESPACE_NAME").unwrap();
-            let codespace_port_domain = std::env::var("GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN").unwrap();
-            let host = format!("{}-{}.{}", codespace_name, port, codespace_port_domain);
-            let script =
-                format!(r#"<script src="/livereload.js?host={}&amp;port={}&amp;mindelay=10"></script>"#, host, 443,);
+            let script = if std::env::var("CODESPACES").is_ok() {
+                let codespace_name = std::env::var("CODESPACE_NAME").unwrap();
+                let codespace_port_domain = std::env::var("GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN").unwrap();
+                let host = format!("{}-{}.{}", codespace_name, port, codespace_port_domain);
+                format!(r#"<script src="/livereload.js?host={}&amp;port={}&amp;mindelay=10"></script>"#, host, 443,)
+            } else {
+                format!(r#"<script src="/livereload.js?port={}&amp;mindelay=10"></script>"#, port,)
+            };
+            
             if let Some(index) = html.rfind("</body>") {
                 html.insert_str(index, &script);
             } else {
