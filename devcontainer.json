@@ -1,0 +1,11 @@
+{
+    "customizations": {
+      "codespaces": {
+        "repositories": {
+          "piannaf/piannaf.github.io": {
+            "permissions": "write-all"
+          }
+        }
+      }
+    }
+  }
